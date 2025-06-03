@@ -9,25 +9,6 @@ public class Instructor {
     private EnumSet<Student.SwimmingStyle> styles;
     private Map<DayOfWeek, TimeSlot> availability;
 
-    public enum DayOfWeek {
-        SUNDAY("ראשון"),
-        MONDAY("שני"),
-        TUESDAY("שלישי"),
-        WEDNESDAY("רביעי"),
-        THURSDAY("חמישי"),
-        FRIDAY("שישי");
-
-        private final String hebrewName;
-
-        DayOfWeek(String hebrewName) {
-            this.hebrewName = hebrewName;
-        }
-
-        public String getHebrewName() {
-            return hebrewName;
-        }
-    }
-
     public static class TimeSlot {
         private int startHour;
         private int endHour;

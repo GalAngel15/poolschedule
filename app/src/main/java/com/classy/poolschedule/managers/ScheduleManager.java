@@ -2,6 +2,7 @@ package com.classy.poolschedule.managers;
 
 import android.util.Log;
 
+import com.classy.poolschedule.models.DayOfWeek;
 import com.classy.poolschedule.models.Instructor;
 import com.classy.poolschedule.models.Lesson;
 import com.classy.poolschedule.models.Student;
@@ -38,8 +39,6 @@ public class ScheduleManager {
 
         for (Map.Entry<String, List<Student>> entry : studentGroups.entrySet()) {
             String[] parts = entry.getKey().split("&");
-            Log.d("ScheduleManager", "All: " + entry.getKey());
-            Log.d("ScheduleManager", "Style: " + parts[0] + ", Type: " + parts[1]);
             Student.SwimmingStyle style = Student.SwimmingStyle.valueOf(parts[0]);
             Student.LessonType preferredType = Student.LessonType.valueOf(parts[1]);
 
@@ -87,15 +86,15 @@ public class ScheduleManager {
         for (Instructor instructor : instructors) {
             if (!instructor.canTeach(style)) continue;
 
-            for (Instructor.DayOfWeek day : Instructor.DayOfWeek.values()) {
-                if (day == Instructor.DayOfWeek.FRIDAY) continue; // Pool closed on weekends
+            for (DayOfWeek day : DayOfWeek.values()) {
+                if (day == DayOfWeek.FRIDAY) continue; // Pool closed on weekends
 
                 Instructor.TimeSlot timeSlot = instructor.getAvailability().get(day);
                 if (timeSlot == null) continue;
 
                 // Try each hour in the time slot
                 for (int hour = timeSlot.getStartHour(); hour <= timeSlot.getEndHour() - 1; hour++) {
-                    if (isTimeSlotAvailable(instructor, day, hour, Lesson.LessonType.GROUP)) {
+                    if (isTimeSlotAvailable(instructor, day, hour,0, Lesson.LessonType.GROUP)) {
                         Lesson lesson = new Lesson(instructor, day, hour, style, Lesson.LessonType.GROUP);
 
                         // Add up to 6 students to group lesson
@@ -126,20 +125,26 @@ public class ScheduleManager {
             for (Instructor instructor : instructors) {
                 if (!instructor.canTeach(style)) continue;
 
-                for (Instructor.DayOfWeek day : Instructor.DayOfWeek.values()) {
-                    if (day == Instructor.DayOfWeek.FRIDAY) continue;
+                for (DayOfWeek day : DayOfWeek.values()) {
+                    if (day == DayOfWeek.FRIDAY) continue;
 
                     Instructor.TimeSlot timeSlot = instructor.getAvailability().get(day);
                     if (timeSlot == null) continue;
 
                     for (int hour = timeSlot.getStartHour(); hour <= timeSlot.getEndHour() - 1; hour++) {
-                        if (isTimeSlotAvailable(instructor, day, hour, Lesson.LessonType.PRIVATE)) {
-                            Lesson lesson = new Lesson(instructor, day, hour, style, Lesson.LessonType.PRIVATE);
-                            lesson.addStudent(student);
-                            lessons.add(lesson);
-                            scheduled = true;
-                            break;
+                        for (int minute = 0; minute < 60; minute += 15) {
+                            if(hour==timeSlot.getEndHour()-1 && minute+Lesson.LessonType.PRIVATE.getDurationMinutes() > 60) {
+                                break; // Skip if the lesson would exceed the hour
+                            }
+                            if (isTimeSlotAvailable(instructor, day, hour, minute,Lesson.LessonType.PRIVATE)) {
+                                Lesson lesson = new Lesson(instructor, day, hour, minute, style, Lesson.LessonType.PRIVATE);
+                                lesson.addStudent(student);
+                                lessons.add(lesson);
+                                scheduled = true;
+                                break;
+                            }
                         }
+                        if (scheduled) break;
                     }
                     if (scheduled) break;
                 }
@@ -152,16 +157,19 @@ public class ScheduleManager {
         }
     }
 
-    private boolean isTimeSlotAvailable(Instructor instructor, Instructor.DayOfWeek day, int hour, Lesson.LessonType type) {
+    private boolean isTimeSlotAvailable(Instructor instructor, DayOfWeek day, int hour,int minute, Lesson.LessonType type) {
+        int newStart = hour * 60 + minute; // שעת ההתחלה בדקות
+        int newEnd = newStart + type.getDurationMinutes();
+
         for (Lesson lesson : lessons) {
             if (lesson.getInstructor().equals(instructor) &&
                     lesson.getDay() == day) {
 
-                int lessonEndHour = lesson.getStartHour() + (lesson.getType().getDurationMinutes() / 60);
-                int newLessonEndHour = hour + (type.getDurationMinutes() / 60);
+                int existingStart = lesson.getStartHour() * 60 +lesson.getStartMinute();
+                int existingEnd = existingStart + lesson.getType().getDurationMinutes();
 
                 // Check for overlap
-                if (!(hour >= lessonEndHour || lesson.getStartHour() >= newLessonEndHour)) {
+                if (newStart < existingEnd && newEnd > existingStart) {
                     return false;
                 }
             }

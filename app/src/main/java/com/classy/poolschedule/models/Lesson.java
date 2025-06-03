@@ -6,10 +6,13 @@ import java.util.List;
 public class Lesson {
     private Instructor instructor;
     private List<Student> students;
-    private Instructor.DayOfWeek day;
+    private DayOfWeek day;
     private int startHour;
+    private int startMinute;
+
     private Student.SwimmingStyle style;
     private LessonType type;
+
 
     public enum LessonType {
         PRIVATE("שיעור פרטי", 45),
@@ -27,10 +30,21 @@ public class Lesson {
         public int getDurationMinutes() { return durationMinutes; }
     }
 
-    public Lesson(Instructor instructor, Instructor.DayOfWeek day, int startHour, Student.SwimmingStyle style, LessonType type) {
+    public Lesson(Instructor instructor, DayOfWeek day, int startHour,int startMinute, Student.SwimmingStyle style, LessonType type) {
         this.instructor = instructor;
         this.day = day;
         this.startHour = startHour;
+        this.startMinute = startMinute;
+        this.style = style;
+        this.type = type;
+        this.students = new ArrayList<>();
+    }
+
+    public Lesson(Instructor instructor, DayOfWeek day, int startHour, Student.SwimmingStyle style, LessonType type) {
+        this.instructor = instructor;
+        this.day = day;
+        this.startHour = startHour;
+        this.startMinute = 0;
         this.style = style;
         this.type = type;
         this.students = new ArrayList<>();
@@ -56,11 +70,14 @@ public class Lesson {
     }
 
     public String getTimeString() {
-        int endHour = startHour + (type.getDurationMinutes() / 60);
-        if (type.getDurationMinutes() % 60 != 0) {
-            endHour++;
-        }
-        return String.format("%02d:00-%02d:00", startHour, endHour);
+        int endHour = startHour * 60 + startMinute + type.getDurationMinutes();
+        int startH= startHour;
+        int startM= startMinute;
+        int endH= endHour / 60;
+        int endM= endHour % 60;
+
+        return String.format("%02d:%02d-%02d:%02d", startH, startM, endH, endM);
+
     }
 
     public String getStudentsString() {
@@ -82,11 +99,14 @@ public class Lesson {
     public List<Student> getStudents() { return students; }
     public void setStudents(List<Student> students) { this.students = students; }
 
-    public Instructor.DayOfWeek getDay() { return day; }
-    public void setDay(Instructor.DayOfWeek day) { this.day = day; }
+    public DayOfWeek getDay() { return day; }
+    public void setDay(DayOfWeek day) { this.day = day; }
 
     public int getStartHour() { return startHour; }
     public void setStartHour(int startHour) { this.startHour = startHour; }
+
+    public int getStartMinute() { return startMinute; }
+    public void setStartMinute(int startMinute) { this.startMinute = startMinute; }
 
     public Student.SwimmingStyle getStyle() { return style; }
     public void setStyle(Student.SwimmingStyle style) { this.style = style; }
