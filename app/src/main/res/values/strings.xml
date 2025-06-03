@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">מערכת ניהול בריכה</string>
+    <string name="add_student">הוסף תלמיד</string>
+    <string name="generate_schedule">צור לוח זמנים</string>
+    <string name="clear_all">מחק הכל</string>
+    <string name="first_name">שם פרטי</string>
+    <string name="last_name">שם משפחה</string>
+    <string name="swimming_style">סגנון שחייה</string>
+    <string name="lesson_type">סוג שיעור</string>
+    <string name="students_list">רשימת תלמידים</string>
+    <string name="weekly_schedule">לוח זמנים שבועי</string>
+    <string name="conflicts_report">דוח קונפליקטים</string>
+</resources>

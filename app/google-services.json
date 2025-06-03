@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "406505744427",
+    "project_id": "poolscheduler-bd21e",
+    "storage_bucket": "poolscheduler-bd21e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:406505744427:android:72262dbda724fd7591626e",
+        "android_client_info": {
+          "package_name": "com.classy.poolschedule"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFOG-TSlx8g4riElhAxisrS55euUVSC0U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

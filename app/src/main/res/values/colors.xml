@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#FFFFFF</color>"
+    <color name="black">#000000</color>
+    <color name="primary_blue">#2196F3</color>
+    <color name="primary_blue_dark">#1976D2</color>
+    <color name="success_green">#4CAF50</color>
+    <color name="success_green_dark">#388E3C</color>
+    <color name="danger_red">#F44336</color>
+    <color name="danger_red_dark">#D32F2F</color>
+    <color name="background_gray">#f5f5f5</color>
+    <color name="text_primary">#333333</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_hint">#999999</color>
+    <color name="divider_gray">#e0e0e0</color>
+    <color name="button_blue">#2196F3</color>
+    <color name="button_blue_dark">#1976D2</color>
+    <color name="button_green">#4CAF50</color>
+    <color name="button_green_dark">#388E3C</color>
+    <color name="button_red">#F44336</color>
+    <color name="button_red_dark">#D32F2F</color>
+</resources>
