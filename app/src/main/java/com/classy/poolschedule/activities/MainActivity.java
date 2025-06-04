@@ -10,6 +10,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,8 +18,10 @@ import com.classy.poolschedule.R;
 import com.classy.poolschedule.adapters.StudentAdapter;
 import com.classy.poolschedule.adapters.LessonAdapter;
 import com.classy.poolschedule.managers.ScheduleManager;
+import com.classy.poolschedule.models.Lesson;
 import com.classy.poolschedule.models.Student;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +31,10 @@ public class MainActivity extends AppCompatActivity {
     private Spinner spinnerStyle, spinnerLessonType;
     private Button btnAddStudent, btnGenerateSchedule, btnClearAll;
     private ListView lvStudents, lvSchedule;
-    private TextView tvConflicts;
+    private TextView tvConflicts, tvScheduleTitle ;
 
     private List<Student> students;
+    private List<Lesson> lessons;
     private StudentAdapter studentAdapter;
     private LessonAdapter lessonAdapter;
     private ScheduleManager scheduleManager;
@@ -57,10 +61,12 @@ public class MainActivity extends AppCompatActivity {
         lvStudents = findViewById(R.id.lvStudents);
         lvSchedule = findViewById(R.id.lvSchedule);
         tvConflicts = findViewById(R.id.tvConflicts);
+        tvScheduleTitle = findViewById(R.id.tvScheduleTitle);
     }
 
     private void initData() {
         students = new ArrayList<>();
+        lessons = new ArrayList<>();
         scheduleManager = new ScheduleManager();
 
         studentAdapter = new StudentAdapter(this, students);
@@ -105,6 +111,10 @@ public class MainActivity extends AppCompatActivity {
         lvSchedule.setOnItemClickListener((parent, view, position, id) -> {
             showLessonDetails(position);
         });
+
+        // Set title for schedule
+        tvScheduleTitle.setOnClickListener(v -> showDayPickerDialog());
+
     }
 
     private void addStudent() {
@@ -145,7 +155,9 @@ public class MainActivity extends AppCompatActivity {
 
         ScheduleManager.ScheduleResult result = scheduleManager.scheduleStudents(students);
 
-        lessonAdapter.updateLessons(result.getScheduledLessons());
+        lessons.clear();
+        lessons.addAll(result.getScheduledLessons());
+        lessonAdapter.updateLessons(lessons);
         tvConflicts.setText(result.getConflictMessage());
 
         if (result.hasConflicts()) {
@@ -194,4 +206,60 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("סגור", null)
                 .show();
     }
+
+    private void showDayPickerDialog() {
+        final String[] days = {"ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("בחר יום להצגת לוח זמנים");
+        builder.setItems(days, (dialog, which) -> {
+            String selectedDay = days[which];
+            showScheduleForDay(selectedDay);
+        });
+        builder.show();
+    }
+
+    private void showScheduleForDay(String selectedDay) {
+        List<Lesson> dayLessons = new ArrayList<>();
+
+        Log.d("MainActivity", "Selected Day: " + selectedDay);
+        Log.d("MainActivity", "Lessons: " + lessons);
+
+        for (Lesson lesson : lessons) {
+            if (lesson.getDay().getHebrewName().equals(selectedDay)) {
+                dayLessons.add(lesson);
+            }
+        }
+
+        if (dayLessons.isEmpty()) {
+            Toast.makeText(this, "אין שיעורים ליום זה", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        StringBuilder builder = getStringBuilder(dayLessons);
+
+        new AlertDialog.Builder(this)
+                .setTitle("שיעורים ביום " + selectedDay)
+                .setMessage(builder.toString())
+                .setPositiveButton("סגור", null)
+                .show();
+    }
+
+    @NonNull
+    private static StringBuilder getStringBuilder(List<Lesson> dayLessons) {
+        StringBuilder builder = new StringBuilder();
+
+        for (Lesson lesson : dayLessons) {
+            builder.append("שעה: ").append(lesson.getStartHour()).append(":").append(lesson.getStartMinute()).append("\n");
+            builder.append("מדריך: ").append(lesson.getInstructor().getName()).append("\n");
+            builder.append("תלמידים: ");
+            for (Student s : lesson.getStudents()) {
+                builder.append(s.getFirstName()).append(" ").append(s.getLastName()).append(", ");
+            }
+            builder.append("\n\n");
+        }
+        return builder;
+    }
+
+
 }

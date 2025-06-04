@@ -213,6 +213,7 @@
                 android:padding="16dp">
 
                 <TextView
+                    android:id="@+id/tvScheduleTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="לוח זמנים שבועי"
