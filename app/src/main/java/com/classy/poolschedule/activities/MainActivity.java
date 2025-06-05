@@ -22,12 +22,9 @@ import com.classy.poolschedule.managers.SharedPreferencesManager;
 import com.classy.poolschedule.models.Lesson;
 import com.classy.poolschedule.models.Student;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import kotlinx.serialization.StringFormat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -131,9 +128,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Click on lesson to show details
-        lvSchedule.setOnItemClickListener((parent, view, position, id) -> {
-            showLessonDetails(position);
-        });
+        lvSchedule.setOnItemClickListener((parent, view, position, id) -> showLessonDetails(position));
 
         // Set title for schedule
         tvScheduleTitle.setOnClickListener(v -> showDayPickerDialog());
@@ -201,7 +196,8 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("כן", (dialog, which) -> {
                     students.clear();
                     studentAdapter.notifyDataSetChanged();
-                    lessonAdapter.updateLessons(new ArrayList<>());
+                    lessons.clear();
+                    lessonAdapter.updateLessons(lessons);
                     tvConflicts.setText("");
                     Toast.makeText(MainActivity.this, "כל הנתונים נמחקו", Toast.LENGTH_SHORT).show();
                     prefsManager.clearData();
@@ -219,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
                     students.remove(position);
                     studentAdapter.notifyDataSetChanged();
                     Toast.makeText(MainActivity.this, "תלמיד הוסר", Toast.LENGTH_SHORT).show();
+                    prefsManager.saveStudents(students);
                 })
                 .setNegativeButton("ביטול", null)
                 .show();
