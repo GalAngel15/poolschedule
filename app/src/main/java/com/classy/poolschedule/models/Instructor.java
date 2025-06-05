@@ -73,7 +73,6 @@ public class Instructor {
         yoni.setAvailability(DayOfWeek.TUESDAY, 8, 15);
         yoni.setAvailability(DayOfWeek.WEDNESDAY, 8, 15);
         yoni.setAvailability(DayOfWeek.THURSDAY, 8, 15);
-        yoni.setAvailability(DayOfWeek.FRIDAY, 8, 15);
         return yoni;
     }
 

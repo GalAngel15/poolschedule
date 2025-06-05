@@ -18,12 +18,16 @@ import com.classy.poolschedule.R;
 import com.classy.poolschedule.adapters.StudentAdapter;
 import com.classy.poolschedule.adapters.LessonAdapter;
 import com.classy.poolschedule.managers.ScheduleManager;
+import com.classy.poolschedule.managers.SharedPreferencesManager;
 import com.classy.poolschedule.models.Lesson;
 import com.classy.poolschedule.models.Student;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
+import kotlinx.serialization.StringFormat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private StudentAdapter studentAdapter;
     private LessonAdapter lessonAdapter;
     private ScheduleManager scheduleManager;
+    private SharedPreferencesManager prefsManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
         initViews();
         initData();
+        prefsManager = SharedPreferencesManager.getInstance(this);
+        loadData();
         setupSpinners();
         setupListeners();
     }
@@ -74,6 +82,21 @@ public class MainActivity extends AppCompatActivity {
 
         lessonAdapter = new LessonAdapter(this, new ArrayList<>());
         lvSchedule.setAdapter(lessonAdapter);
+    }
+
+    private void loadData() {
+        List<Student> loadedStudents = prefsManager.loadStudents();
+        if (!loadedStudents.isEmpty()) {
+            students.clear();
+            students.addAll(loadedStudents);
+            studentAdapter.notifyDataSetChanged();
+        }
+        List<Lesson> loadedLessons = prefsManager.loadLessons();
+        if (!loadedLessons.isEmpty()) {
+            lessons.clear();
+            lessons.addAll(loadedLessons);
+            lessonAdapter.updateLessons(lessons);
+        }
     }
 
     private void setupSpinners() {
@@ -145,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
         etLastName.setText("");
 
         Toast.makeText(this, "תלמיד נוסף בהצלחה", Toast.LENGTH_SHORT).show();
+        prefsManager.saveStudents(students);
     }
 
     private void generateSchedule() {
@@ -167,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Toast.makeText(this, "לוח זמנים נוצר!", Toast.LENGTH_SHORT).show();
+        prefsManager.saveLessons(lessons);
     }
 
     private void clearAll() {
@@ -179,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
                     lessonAdapter.updateLessons(new ArrayList<>());
                     tvConflicts.setText("");
                     Toast.makeText(MainActivity.this, "כל הנתונים נמחקו", Toast.LENGTH_SHORT).show();
+                    prefsManager.clearData();
                 })
                 .setNegativeButton("ביטול", null)
                 .show();
@@ -250,7 +276,8 @@ public class MainActivity extends AppCompatActivity {
         StringBuilder builder = new StringBuilder();
 
         for (Lesson lesson : dayLessons) {
-            builder.append("שעה: ").append(lesson.getStartHour()).append(":").append(lesson.getStartMinute()).append("\n");
+            builder.append("שעה: ")
+                    .append(String.format(Locale.US,"%02d:%02d",lesson.getStartHour(),lesson.getStartMinute())).append("\n");
             builder.append("מדריך: ").append(lesson.getInstructor().getName()).append("\n");
             builder.append("תלמידים: ");
             for (Student s : lesson.getStudents()) {
@@ -261,5 +288,11 @@ public class MainActivity extends AppCompatActivity {
         return builder;
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        prefsManager.saveStudents(students);
+        prefsManager.saveLessons(lessons);
+    }
 
 }

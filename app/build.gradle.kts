@@ -58,5 +58,5 @@ dependencies {
     implementation(libs.firebase.analytics)
 
     implementation (libs.material.v1110)
-
+    implementation (libs.gson)
 }
